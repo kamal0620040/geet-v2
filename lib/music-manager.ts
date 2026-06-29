@@ -83,8 +83,10 @@ export function createMusicManager({
             this.queue = index;
             const wasPlaying = !this.isPaused();
             const song = songs[index];
-
-            audio.src = song.url;
+            
+            audio.crossOrigin = "anonymous";
+            audio.src = song.downloadUrl[song.downloadUrl.length - 1].url;
+            console.log(song.downloadUrl[song.downloadUrl.length - 1].url)
 
             updateDuration(0);
             options?.onNext?.(song as Song);
