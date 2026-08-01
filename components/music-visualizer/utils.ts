@@ -43,8 +43,6 @@ export const draw = (
   backgroundColor: string,
   barColor: string,
 ): void => {
-  const amp = canvas.height / 2;
-
   const ctx = canvas.getContext("2d") as CustomCanvasRenderingContext2D;
   if (!ctx) return;
 
@@ -63,9 +61,9 @@ export const draw = (
     const w = barWidth;
     const h = dp || 1;
 
-    ctx.beginPath();
     if (ctx.roundRect) {
       // making sure roundRect is supported by the browser
+      ctx.beginPath();
       ctx.roundRect(x, y, w, h, 20);
       ctx.fill();
     } else {

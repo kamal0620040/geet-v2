@@ -22,9 +22,18 @@ export default function MusicPlayer() {
       return;
     }
 
+    const updateDuration = (percent: number) => {
+      duration.style.setProperty("width", `${percent}%`);
+    };
+
     const manager = createMusicManager({
-      duration,
-      onNext: setSong,
+       onTimeUpdate: (currentTime, duration) => {
+        updateDuration((currentTime / duration) * 100);
+      },
+      onNext: (song) => {
+        updateDuration(0);
+        setSong(song);
+      },
     });
 
     const shortcut = createShortcutManager({
@@ -93,7 +102,7 @@ export default function MusicPlayer() {
         )}
       </div>
 
-      <div className="mt-auto ml-auto w-full max-w-100">
+      <div className="mt-auto mx-auto w-full max-w-62.5 h-37.5 sm:mr-0">
         {analyser && (
           <MusicVisualizer
             analyser={analyser}
