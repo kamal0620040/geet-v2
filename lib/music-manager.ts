@@ -19,6 +19,7 @@ export interface MusicManager {
 
 export interface MusicManagerOptions {
     onTimeUpdate?: (currentTime: number, duration: number) => void;
+    onStateChange?: () => void;
     onNext?: (song: Song) => void;
 }
 
@@ -45,6 +46,9 @@ export function createMusicManager({
             return context.state === "suspended" || (audio != null && audio.paused)
         },
         init() {
+            const onStateChange = () => {
+                options?.onStateChange?.();
+            }
             const onTimeUpdate = () => {
                 options?.onTimeUpdate?.(audio.currentTime, audio.duration);
             }
@@ -58,17 +62,21 @@ export function createMusicManager({
             analyser.connect(context.destination);
 
             audio.addEventListener("timeupdate", onTimeUpdate);
+            audio.addEventListener("play", onStateChange);
+            audio.addEventListener("pause", onStateChange);
             audio.addEventListener("ended", onEnded);
             this.setTrack(0);
 
             onDestroy = () => {
+                audio.removeEventListener("play", onStateChange);
+                audio.removeEventListener("pause", onStateChange);
                 audio.removeEventListener("timeupdate", onTimeUpdate);
                 audio.removeEventListener("ended", onEnded);
             }
         },
-        play() {
+        async play() {
             if(context.state === "suspended") {
-                context.resume();
+                await context.resume();
             }
 
             audio.play();

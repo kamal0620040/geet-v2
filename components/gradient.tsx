@@ -10,7 +10,7 @@ export default function Gradient() {
       animate={{ opacity: 1 }}
       transition={{
         ease: "easeInOut",
-        duration: 2,
+        duration: 1,
         delay: 0.1,
       }}
     >

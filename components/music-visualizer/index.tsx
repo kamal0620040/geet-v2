@@ -12,6 +12,8 @@ export interface Props {
 
   backgroundColor?: string;
   barColor?: string;
+
+  className?: string;
 }
 
 export function MusicVisualizer({
