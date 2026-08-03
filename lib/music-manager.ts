@@ -1,113 +1,169 @@
-import songs from '@/music/data.json';
-import { Song } from '@/music/data';
+import { Song } from "@/music/data";
+import {
+  createQueueManager,
+  QueueItem,
+  QueueManager,
+} from "@/lib/queue-manager";
+
+export interface EqSettings {
+  bass: number;
+  mid: number;
+  treble: number;
+}
 
 export interface MusicManager {
-    queue: number;
-    analyser: AnalyserNode;
-    init(): void;
-    play(): void;
-    previous(): void;
-    next(): void;
-    isPaused(): boolean;
-    setTrack(index: number): void;
-    pause(): void,
-    destroy(): void;
+  queueManager: QueueManager;
+  analyser: AnalyserNode;
 
-    getTime(): number;
-    setTime(time: number): void;
+  play(): Promise<void>;
+  pause(): void;
+  setPlaying(song: Song): void;
+  destroy(): void;
+
+  isPaused(): boolean;
+  getTime(): number;
+  getDuration(): number;
+  setTime(time: number): void;
+
+  setEq(bass: number, mid: number, treble: number): void;
+  getEq(): EqSettings;
 }
 
 export interface MusicManagerOptions {
-    onTimeUpdate?: (currentTime: number, duration: number) => void;
-    onStateChange?: () => void;
-    onNext?: (song: Song) => void;
+  onNext?: (song: QueueItem | undefined) => void;
+  onStateChange?: () => void;
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
 }
 
 export function createMusicManager({
-    ...options
+  ...options
 }: MusicManagerOptions): MusicManager {
-    const context = new AudioContext();
-    const analyser = context.createAnalyser();
-    const audio = new Audio();
-    let source: MediaElementAudioSourceNode | undefined;
+  const context = new AudioContext();
+  const analyser = context.createAnalyser();
+  const audio = new Audio();
+  audio.crossOrigin = "anonymous";
+  let shouldPlay = false;
 
-    let onDestroy: () => void;
+  // 3-Band Equalizer BiquadFilterNodes
+  const bassFilter = context.createBiquadFilter();
+  bassFilter.type = "lowshelf";
+  bassFilter.frequency.value = 200;
+  bassFilter.gain.value = 0;
 
-    return {
-        queue: 0,
-        analyser,
-        getTime(): number {
-            return audio.currentTime;
-        },
-        setTime(time: number) {
-            audio.currentTime = time;
-        },
-        isPaused(): boolean {
-            return context.state === "suspended" || (audio != null && audio.paused)
-        },
-        init() {
-            const onStateChange = () => {
-                options?.onStateChange?.();
-            }
-            const onTimeUpdate = () => {
-                options?.onTimeUpdate?.(audio.currentTime, audio.duration);
-            }
-            const onEnded = () => {
-                this.next();
-                this.play();
-            }
+  const midFilter = context.createBiquadFilter();
+  midFilter.type = "peaking";
+  midFilter.frequency.value = 1000;
+  midFilter.Q.value = 1;
+  midFilter.gain.value = 0;
 
-            source = context.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(context.destination);
+  const trebleFilter = context.createBiquadFilter();
+  trebleFilter.type = "highshelf";
+  trebleFilter.frequency.value = 4000;
+  trebleFilter.gain.value = 0;
 
-            audio.addEventListener("timeupdate", onTimeUpdate);
-            audio.addEventListener("play", onStateChange);
-            audio.addEventListener("pause", onStateChange);
-            audio.addEventListener("ended", onEnded);
-            this.setTrack(0);
+  const onStateChange = () => {
+    options.onStateChange?.();
+  };
+  const onTimeUpdate = () => {
+    options.onTimeUpdate?.(audio.currentTime, audio.duration);
+  };
+  const onEnded = () => {
+    manager.queueManager.next();
+    manager.play();
+  };
 
-            onDestroy = () => {
-                audio.removeEventListener("play", onStateChange);
-                audio.removeEventListener("pause", onStateChange);
-                audio.removeEventListener("timeupdate", onTimeUpdate);
-                audio.removeEventListener("ended", onEnded);
-            }
-        },
-        async play() {
-            if(context.state === "suspended") {
-                await context.resume();
-            }
+  const queueManager = createQueueManager({
+    onUpdate: (song) => {
+      if (song) manager.setPlaying(song);
+      options?.onNext?.(song);
+      options.onTimeUpdate?.(0, 0);
+    },
+  });
 
-            audio.play();
-        },
-        pause() {
-            audio.pause();
-        },
-        setTrack(index: number) {
-            this.queue = index;
-            const wasPlaying = !this.isPaused();
-            const song = songs[index];
-            
-            audio.crossOrigin = "anonymous";
-            audio.src = song.downloadUrl[song.downloadUrl.length - 1].url;
-            console.log(song.downloadUrl[song.downloadUrl.length - 1].url)
+  const init = () => {
+    const source = context.createMediaElementSource(audio);
+    // Connect audio node chain: source -> bass -> mid -> treble -> analyser -> destination
+    source.connect(bassFilter);
+    bassFilter.connect(midFilter);
+    midFilter.connect(trebleFilter);
+    trebleFilter.connect(analyser);
+    analyser.connect(context.destination);
 
-            options?.onNext?.(song as Song);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("play", onStateChange);
+    audio.addEventListener("pause", onStateChange);
+    audio.addEventListener("ended", onEnded);
+    queueManager.setIndex(queueManager.songs[0]?.id ?? "");
+  };
 
-            if(wasPlaying) {
-                this.play();
-            }
-        },
-        previous() {
-            this.setTrack(this.queue <= 0 ? songs.length - 1 : this.queue - 1);
-        },
-        next() {
-            this.setTrack(this.queue >= songs.length - 1 ? 0 : this.queue + 1);
-        },
-        destroy() {
-            this.pause();
-            onDestroy();
+  const manager: MusicManager = {
+    queueManager,
+    analyser,
+    getTime(): number {
+      return audio.currentTime;
+    },
+    getDuration(): number {
+      return audio.duration;
+    },
+    setTime(time: number) {
+      audio.currentTime = time;
+    },
+    isPaused(): boolean {
+      return context.state === "suspended" || (audio != null && audio.paused);
+    },
+    async play() {
+      shouldPlay = true;
+
+      if (!audio.src) return;
+
+      if (context.state === "suspended") {
+        await context.resume();
+      }
+
+      try {
+        await audio.play();
+      } catch (error) {
+        if ((error as DOMException)?.name !== "AbortError") {
+          throw error;
         }
-    }
+      }
+    },
+    pause() {
+      shouldPlay = false;
+      void audio.pause();
+    },
+    setPlaying(song) {
+      const source = [...song.downloadUrl].sort(
+        (a, b) => parseInt(b.quality) - parseInt(a.quality),
+      )[0];
+      audio.src = source?.url ?? "";
+
+      if (shouldPlay) {
+        void this.play();
+      }
+    },
+    setEq(bass: number, mid: number, treble: number) {
+      bassFilter.gain.value = bass;
+      midFilter.gain.value = mid;
+      trebleFilter.gain.value = treble;
+    },
+    getEq() {
+      return {
+        bass: bassFilter.gain.value,
+        mid: midFilter.gain.value,
+        treble: trebleFilter.gain.value,
+      };
+    },
+    destroy() {
+      this.pause();
+      audio.removeEventListener("play", onStateChange);
+      audio.removeEventListener("pause", onStateChange);
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("ended", onEnded);
+    },
+  };
+
+  init();
+
+  return manager;
 }

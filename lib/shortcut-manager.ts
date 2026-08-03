@@ -13,38 +13,50 @@ export interface ShortcutManager {
 export function createShortcutManager({
   musicManager,
 }: ShortcutManagerOptions): ShortcutManager {
-  return {
-    onPress(event: KeyboardEvent) {
-      switch (event.key) {
-        case "ArrowUp":
-          musicManager.previous();
-          event.preventDefault();
-          break;
-        case "ArrowDown":
-          musicManager.next();
-          event.preventDefault();
-          break;
-        case "ArrowLeft":
-          musicManager.setTime(musicManager.getTime() - 1);
-          event.preventDefault();
-          break;
-        case "ArrowRight":
-          musicManager.setTime(musicManager.getTime() + 1);
-          event.preventDefault();
-          break;
-        case " ":
-          if (musicManager.isPaused()) musicManager.play();
-          else musicManager.pause();
+  const handler = (event: KeyboardEvent) => {
+    const target = event.target as HTMLElement | null;
+    const isInput =
+      target &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.isContentEditable);
 
-          event.preventDefault();
-          break;
-      }
-    },
+    if (isInput) return;
+
+    switch (event.key) {
+      case "ArrowUp":
+        musicManager.queueManager.previous();
+        event.preventDefault();
+        break;
+      case "ArrowDown":
+        musicManager.queueManager.next();
+        event.preventDefault();
+        break;
+      case "ArrowLeft":
+        musicManager.setTime(musicManager.getTime() - 1);
+        event.preventDefault();
+        break;
+      case "ArrowRight":
+        musicManager.setTime(musicManager.getTime() + 1);
+        event.preventDefault();
+        break;
+      case " ":
+        if (musicManager.isPaused()) musicManager.play();
+        else musicManager.pause();
+
+        event.preventDefault();
+        break;
+    }
+  };
+
+  return {
+    onPress: handler,
     bind() {
-      window.addEventListener("keydown", this.onPress);
+      window.addEventListener("keydown", handler);
     },
     destroy() {
-      window.removeEventListener("keydown", this.onPress);
+      window.removeEventListener("keydown", handler);
     },
   };
-}
+}
