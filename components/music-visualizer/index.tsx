@@ -1,8 +1,11 @@
 import { type ReactElement, useCallback, useEffect, useRef } from "react";
-import { calculateBarData, draw } from "./utils";
+import { calculateBarData, draw, drawWaveform, drawRadial } from "./utils";
+
+export type VisualizerMode = "spectrum" | "waveform" | "radial";
 
 export interface Props {
   analyser: AnalyserNode;
+  mode?: VisualizerMode;
 
   width?: number;
   height?: number;
@@ -18,39 +21,38 @@ export interface Props {
 
 export function MusicVisualizer({
   analyser,
+  mode = "spectrum",
   width = 500,
   height = 150,
   barWidth = 2,
   gap = 1,
   backgroundColor = "transparent",
   barColor = "rgb(160, 198, 255)",
+  className,
 }: Props): ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number>(0);
 
-  const processFrequencyData = useCallback(
+  const processAudioData = useCallback(
     (data: Uint8Array) => {
       const canvas = canvasRef.current;
-
       if (!canvas) return;
 
-      const dataPoints = calculateBarData(
-        data,
-        canvas.width,
-        barWidth,
-        gap,
-      );
-
-      draw(
-        dataPoints,
-        canvas,
-        barWidth,
-        gap,
-        backgroundColor,
-        barColor,
-      );
+      if (mode === "waveform") {
+        drawWaveform(data, canvas, backgroundColor, barColor);
+      } else if (mode === "radial") {
+        drawRadial(data, canvas, backgroundColor, barColor);
+      } else {
+        const dataPoints = calculateBarData(
+          data,
+          canvas.width,
+          barWidth,
+          gap,
+        );
+        draw(dataPoints, canvas, barWidth, gap, backgroundColor, barColor);
+      }
     },
-    [barWidth, gap, backgroundColor, barColor],
+    [mode, barWidth, gap, backgroundColor, barColor],
   );
 
   useEffect(() => {
@@ -61,10 +63,13 @@ export function MusicVisualizer({
     const data = new Uint8Array(analyser.frequencyBinCount);
 
     const render = () => {
-      analyser.getByteFrequencyData(data);
+      if (mode === "waveform") {
+        analyser.getByteTimeDomainData(data);
+      } else {
+        analyser.getByteFrequencyData(data);
+      }
 
-      processFrequencyData(data);
-
+      processAudioData(data);
       frameRef.current = requestAnimationFrame(render);
     };
 
@@ -73,13 +78,14 @@ export function MusicVisualizer({
     return () => {
       cancelAnimationFrame(frameRef.current);
     };
-  }, [analyser, processFrequencyData]);
+  }, [analyser, mode, processAudioData]);
 
   return (
     <canvas
       ref={canvasRef}
       width={width}
       height={height}
+      className={className}
       style={{
         width: "100%",
         height: "100%",
