@@ -1,12 +1,15 @@
-interface CustomCanvasRenderingContext2D extends CanvasRenderingContext2D {
+type CustomCanvasRenderingContext2D = Omit<
+  CanvasRenderingContext2D,
+  "roundRect"
+> & {
   roundRect?: (
     x: number,
     y: number,
     w: number,
     h: number,
-    radius: number,
+    radius?: number | DOMPointInit | (number | DOMPointInit)[],
   ) => void;
-}
+};
 
 export const calculateBarData = (
   frequencyData: Uint8Array,
