@@ -155,3 +155,47 @@
     }
   }
 }
+
+@layer utilities {
+  .scrollbar-purple {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(192, 132, 252, 0.4) transparent;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar-thumb {
+    background: rgba(192, 132, 252, 0.4);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-purple::-webkit-scrollbar-thumb:hover {
+    background: rgba(192, 132, 252, 0.6);
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(192, 132, 252, 0.08) 25%,
+      rgba(192, 132, 252, 0.22) 50%,
+      rgba(192, 132, 252, 0.08) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
