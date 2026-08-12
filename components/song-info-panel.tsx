@@ -10,9 +10,13 @@ import { RefObject } from "react";
 
 interface SongInfoPanelProps {
   timelineRef: RefObject<DurationControl | undefined>;
+  onOpenArtist?: (artistId: string) => void;
 }
 
-export function SongInfoPanel({ timelineRef }: SongInfoPanelProps) {
+export function SongInfoPanel({
+  timelineRef,
+  onOpenArtist,
+}: SongInfoPanelProps) {
   const { musicManager, loading, error, currentSong } = useMusicPlayer();
   const [showLyrics, setShowLyrics] = useState(false);
   const [songInfo, setSongInfo] = useState<{ id?: string; changed: boolean }>({
@@ -35,7 +39,11 @@ export function SongInfoPanel({ timelineRef }: SongInfoPanelProps) {
           {loading ? (
             <SongDisplaySkeleton />
           ) : currentSong ? (
-            <SongDisplay key={currentSong.id} song={currentSong} />
+            <SongDisplay
+              key={currentSong.id}
+              song={currentSong}
+              onClickArtist={onOpenArtist}
+            />
           ) : error ? (
             <p key="error" className="text-sm text-red-300 mt-4">{error}</p>
           ) : null}

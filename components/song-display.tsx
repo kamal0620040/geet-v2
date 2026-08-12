@@ -16,7 +16,13 @@ export function SongDisplaySkeleton() {
   );
 }
 
-export function SongDisplay({ song }: { song: QueueItem }) {
+export function SongDisplay({
+  song,
+  onClickArtist,
+}: {
+  song: QueueItem;
+  onClickArtist?: (artistId: string) => void;
+}) {
   return (
     <motion.div
       key={song.url}
@@ -37,9 +43,26 @@ className="flex flex-1 flex-row items-center gap-3 mt-4 rounded-xl p-3 min-w-0"
       )}
       <div className="min-w-0">
         <p className="font-medium truncate">{song.name}</p>
-        <p className="text-xs text-purple-200 truncate">
-          {song.artists?.primary?.map((e) => e.name).join(", ")}
-        </p>
+        {song.artists?.primary?.length ? (
+          <p className="text-xs text-purple-200/80 truncate">
+            {song.artists.primary.map((artist, i) => (
+              <span key={artist.id}>
+                {i > 0 && ", "}
+                {artist.id && onClickArtist ? (
+                  <button
+                    type="button"
+                    onClick={() => onClickArtist(artist.id)}
+                    className="font-medium text-purple-200/90 transition-colors hover:text-pink-400 hover:underline cursor-pointer"
+                  >
+                    {artist.name}
+                  </button>
+                ) : (
+                  artist.name
+                )}
+              </span>
+            ))}
+          </p>
+        ) : null}
       </div>
     </motion.div>
   );

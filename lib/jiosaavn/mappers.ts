@@ -2,9 +2,11 @@ import forge from "node-forge";
 import { Song } from "@/music/data";
 import { decodeHtmlEntities } from "@/lib/utils";
 import {
+  ArtistDetail,
   PlaylistCatalogItem,
   PlaylistDetail,
   RawArtist,
+  RawArtistPageDetails,
   RawPlaylistCatalogItem,
   RawPlaylistDetails,
   RawSong,
@@ -139,7 +141,26 @@ const createPlaylistPayload = (
   artists: (playlist.more_info?.artists ?? []).map(createArtistMapPayload) ?? null,
 });
 
+const createArtistDetailPayload = (
+  artist: RawArtistPageDetails,
+): ArtistDetail => {
+  const topSongs = Array.isArray(artist.topSongs)
+    ? artist.topSongs
+    : artist.topSongs?.songs ?? [];
+
+  return {
+    id: artist.artistId ?? "",
+    name: decodeHtmlEntities(artist.name ?? ""),
+    image: createImageLinks(artist.image ?? ""),
+    followerCount: artist.follower_count ?? "",
+    dominentLanguage: artist.dominantLanguage ?? "",
+    description: artist.bio ? decodeHtmlEntities(artist.bio) : null,
+    topSongs: topSongs.map(createSongPayload),
+  };
+};
+
 export {
+  createArtistDetailPayload,
   createArtistMapPayload,
   createDownloadLinks,
   createImageLinks,

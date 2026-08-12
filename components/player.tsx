@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { MusicPlayerProvider } from "@/lib/player-context";
 import { useMusicPlayerState } from "@/hooks/use-music-player-state";
 import { AnimatedTitle } from "@/components/animated-title";
@@ -9,6 +10,7 @@ import { PlayerVisualizer } from "@/components/player-visualizer";
 import { DynamicBackground } from "@/components/dynamic-background";
 import { FileDropzone } from "@/components/control/file-dropzone";
 import { Menu } from "@/components/menu";
+import { ArtistOverlay } from "@/components/artist-overlay";
 
 export default function MusicPlayer() {
   const {
@@ -34,6 +36,7 @@ export default function MusicPlayer() {
     gradientColors,
     handleCanvasClick,
   } = useMusicPlayerState();
+  const [artistId, setArtistId] = useState<string | null>(null);
 
   return (
     <MusicPlayerProvider
@@ -66,7 +69,10 @@ export default function MusicPlayer() {
       >
         <AnimatedTitle text={paused ? "Click to Play" : "Geet"} />
 
-        <SongInfoPanel timelineRef={timelineRef} />
+        <SongInfoPanel
+          timelineRef={timelineRef}
+          onOpenArtist={setArtistId}
+        />
 
         <div className="flex flex-row gap-4 mt-auto items-end justify-center md:justify-between">
           {musicManager && <Menu />}
@@ -75,6 +81,11 @@ export default function MusicPlayer() {
 
         <DynamicBackground gradientColors={gradientColors} />
       </motion.main>
+
+      <ArtistOverlay
+        artistId={artistId}
+        onClose={() => setArtistId(null)}
+      />
     </MusicPlayerProvider>
   );
 }

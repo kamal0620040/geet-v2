@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "c.saavncdn.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "static.saavncdn.com",
+        pathname: "/**",
+      },
     ],
   },
 };

@@ -50,6 +50,16 @@ export interface PlaylistDetail {
   artists: PlaylistArtist[] | null;
 }
 
+export interface ArtistDetail {
+  id: string;
+  name: string;
+  image: ImageLink[];
+  followerCount: string;
+  dominentLanguage: string;
+  description: string | null;
+  topSongs: Song[];
+}
+
 export interface SongLyrics {
   lyrics: string;
   snippet: string | null;
@@ -159,6 +169,18 @@ interface RawLyricsResponse {
   lyrics_copyright?: string;
 }
 
+interface RawArtistPageDetails {
+  artistId?: string;
+  name?: string;
+  subtitle?: string;
+  image?: string;
+  follower_count?: string;
+  dominantLanguage?: string;
+  dominantType?: string;
+  bio?: string;
+  topSongs?: RawSong[] | { songs?: RawSong[] };
+}
+
 interface RawSuggestionsResponse {
   [songId: string]: RawSong[] | undefined;
 }
@@ -173,4 +195,5 @@ export type {
   RawPlaylistDetails,
   RawLyricsResponse,
   RawSuggestionsResponse,
+  RawArtistPageDetails,
 };

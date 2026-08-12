@@ -1,7 +1,9 @@
 const API_URL = "https://www.jiosaavn.com/api.php";
 const SEARCH_ENDPOINT = "search.getResults";
 const SEARCH_PLAYLISTS_ENDPOINT = "search.getPlaylistResults";
+const SEARCH_ARTISTS_ENDPOINT = "search.getArtistResults";
 const PLAYLIST_DETAILS_ENDPOINT = "playlist.getDetails";
+const ARTIST_DETAILS_ENDPOINT = "artist.getArtistPageDetails";
 const LYRICS_ENDPOINT = "lyrics.getLyrics";
 const SONG_SUGGESTIONS_ENDPOINT = "reco.getreco";
 
@@ -62,7 +64,9 @@ export const fetchFromJiosaavn = async <T>(
 export const endpoints = {
   search: SEARCH_ENDPOINT,
   searchPlaylists: SEARCH_PLAYLISTS_ENDPOINT,
+  searchArtists: SEARCH_ARTISTS_ENDPOINT,
   playlistDetails: PLAYLIST_DETAILS_ENDPOINT,
+  artistDetails: ARTIST_DETAILS_ENDPOINT,
   lyrics: LYRICS_ENDPOINT,
   songSuggestions: SONG_SUGGESTIONS_ENDPOINT,
 } as const;

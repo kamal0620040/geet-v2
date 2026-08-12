@@ -5,6 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 export function decodeHtmlEntities(text: string): string {
   return text
     .replace(/&amp;/g, "&")
