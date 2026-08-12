@@ -46,7 +46,7 @@ export function Menu() {
         </svg>
         Menu
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-3 overflow-hidden">
+      <PopoverContent className="w-[calc(100vw-2rem)] max-w-80 p-3 overflow-hidden">
         {/* Navigation Tabs */}
         <div className="flex flex-row gap-1 bg-purple-200/10 p-1 rounded-lg mb-3">
           <button

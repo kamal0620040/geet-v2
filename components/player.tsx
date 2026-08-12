@@ -61,7 +61,7 @@ export default function MusicPlayer() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ ease: "easeInOut", duration: 0.5 }}
-        className="relative flex flex-col h-svh px-12 py-16 z-2 text-purple-100 md:p-24 select-none"
+        className="relative flex flex-col h-svh px-6 py-10 z-2 text-purple-100 pb-[max(2.5rem,env(safe-area-inset-bottom))] md:p-24 select-none"
         onMouseDown={handleCanvasClick}
       >
         <AnimatedTitle text={paused ? "Click to Play" : "Geet"} />

@@ -8,9 +8,9 @@ export function AnimatedTitle({ text }: { text: string }) {
   let index = 0;
 
   return (
-    <h1 className="text-8xl font-light leading-[0.9] tracking-[-0.1em] md:text-9xl md:leading-[0.9] md:tracking-[-0.1em]">
+    <h1 className="text-6xl pr-14 font-light leading-[0.95] tracking-[-0.05em] sm:text-7xl md:pr-0 md:text-9xl md:leading-[0.9] md:tracking-[-0.1em]">
       {words.map((word, i) => (
-        <motion.span key={i} className="inline-block mr-8 break-keep">
+        <motion.span key={i} className="inline-block mr-4 break-keep md:mr-8">
           {word.split("").map((c, j) => (
             <motion.span
               key={`${c}-${j}`}

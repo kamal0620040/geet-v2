@@ -24,7 +24,7 @@ export function SongDisplay({ song }: { song: QueueItem }) {
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -10, opacity: 0 }}
       transition={{ ease: "easeInOut", duration: 0.3 }}
-      className="flex flex-row items-center gap-4 mt-4 rounded-xl p-3"
+className="flex flex-1 flex-row items-center gap-3 mt-4 rounded-xl p-3 min-w-0"
     >
       {song.image && (
         <Image
@@ -35,9 +35,9 @@ export function SongDisplay({ song }: { song: QueueItem }) {
           height={56}
         />
       )}
-      <div>
-        <p className="font-medium">{song.name}</p>
-        <p className="text-xs text-purple-200">
+      <div className="min-w-0">
+        <p className="font-medium truncate">{song.name}</p>
+        <p className="text-xs text-purple-200 truncate">
           {song.artists?.primary?.map((e) => e.name).join(", ")}
         </p>
       </div>

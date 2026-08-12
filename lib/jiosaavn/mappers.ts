@@ -1,5 +1,6 @@
 import forge from "node-forge";
 import { Song } from "@/music/data";
+import { decodeHtmlEntities } from "@/lib/utils";
 import {
   PlaylistCatalogItem,
   PlaylistDetail,
@@ -54,23 +55,25 @@ const createImageLinks = (link: string) => {
 
 const createArtistMapPayload = (artist: RawArtist) => ({
   id: artist.id ?? "",
-  name: artist.name ?? "",
+  name: decodeHtmlEntities(artist.name ?? ""),
   role: artist.role ?? "",
   image: createImageLinks(artist.image ?? ""),
   type: "artist" as const,
   url: artist.perma_url ?? "",
 });
 
+const createAlbumLabel = (text?: string) => decodeHtmlEntities(text ?? "");
+
 const createSongPayload = (song: RawSong): Song => ({
   id: song.id ?? "",
-  name: song.title ?? "",
+  name: decodeHtmlEntities(song.title ?? ""),
   type: "song",
   year: song.year ?? "",
   releaseDate: song.more_info?.release_date ?? null,
   duration: song.more_info?.duration
     ? Number(song.more_info.duration)
     : 0,
-  label: song.more_info?.label ?? "",
+  label: createAlbumLabel(song.more_info?.label),
   explicitContent: song.explicit_content === "1",
   playCount: song.play_count ? Number(song.play_count) : 0,
   language: song.language ?? "",
@@ -79,10 +82,10 @@ const createSongPayload = (song: RawSong): Song => ({
     song.more_info?.lyrics_id ||
     (song.more_info?.has_lyrics === "true" ? song.id ?? null : null),
   url: song.perma_url ?? "",
-  copyright: song.more_info?.copyright_text ?? "",
+  copyright: createAlbumLabel(song.more_info?.copyright_text),
   album: {
     id: song.more_info?.album_id ?? "",
-    name: song.more_info?.album ?? "",
+    name: createAlbumLabel(song.more_info?.album),
     url: song.more_info?.album_url ?? "",
   },
   artists: {
@@ -104,7 +107,7 @@ const createSearchPlaylistPayload = (
   playlist: RawPlaylistCatalogItem,
 ): PlaylistCatalogItem => ({
   id: playlist.id ?? "",
-  name: playlist.title ?? "",
+  name: decodeHtmlEntities(playlist.title ?? ""),
   type: playlist.type ?? "",
   image: createImageLinks(playlist.image ?? ""),
   url: playlist.perma_url ?? "",
@@ -120,8 +123,10 @@ const createPlaylistPayload = (
   limit: number,
 ): PlaylistDetail => ({
   id: playlist.id ?? "",
-  name: playlist.title ?? "",
-  description: playlist.header_desc ?? null,
+  name: decodeHtmlEntities(playlist.title ?? ""),
+  description: playlist.header_desc
+    ? decodeHtmlEntities(playlist.header_desc)
+    : null,
   year: playlist.year ? Number(playlist.year) : null,
   type: playlist.type ?? "",
   playCount: playlist.play_count ? Number(playlist.play_count) : null,
