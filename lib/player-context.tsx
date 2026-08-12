@@ -22,6 +22,10 @@ export interface MusicPlayerContextValue {
   favoriteSongs: QueueItem[];
   toggleFavorite: (song: QueueItem) => void;
   isFavorite: (songId: string) => boolean;
+
+  radioActive: boolean;
+  startRadio: (song: QueueItem) => Promise<void>;
+  stopRadio: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextValue | null>(null);

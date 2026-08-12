@@ -28,6 +28,9 @@ export default function MusicPlayer() {
     favoriteSongs,
     toggleFavorite,
     isFavorite,
+    radioActive,
+    startRadio,
+    stopRadio,
     gradientColors,
     handleCanvasClick,
   } = useMusicPlayerState();
@@ -48,6 +51,9 @@ export default function MusicPlayer() {
         favoriteSongs,
         toggleFavorite,
         isFavorite,
+        radioActive,
+        startRadio,
+        stopRadio,
       }}
     >
       <FileDropzone />

@@ -24,3 +24,27 @@ export async function searchSongs(query: string, limit = 10): Promise<Song[]> {
   const data = (await response.json()) as SearchSongsResponse;
   return data.data.results;
 }
+
+interface SuggestionsResponse {
+  success: boolean;
+  data: Song[];
+}
+
+export async function getSongSuggestions(
+  songId: string,
+  limit = 20,
+): Promise<Song[]> {
+  const url = `${BASE_URL}/suggestions?id=${encodeURIComponent(songId)}&limit=${limit}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch song suggestions: ${response.status}`);
+  }
+
+  const data = (await response.json()) as SuggestionsResponse;
+  if (!data.success) {
+    throw new Error("Failed to fetch song suggestions");
+  }
+
+  return data.data;
+}

@@ -63,6 +63,7 @@ const SEARCH_ENDPOINT = "search.getResults";
 const SEARCH_PLAYLISTS_ENDPOINT = "search.getPlaylistResults";
 const PLAYLIST_DETAILS_ENDPOINT = "playlist.getDetails";
 const LYRICS_ENDPOINT = "lyrics.getLyrics";
+const SONG_SUGGESTIONS_ENDPOINT = "reco.getreco";
 
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -93,13 +94,14 @@ const randomUserAgent = () =>
 const fetchFromJiosaavn = async <T>(
   endpoint: string,
   params: Record<string, string | number>,
+  ctx: string = "web6dot0",
 ): Promise<T> => {
   const url = new URL(API_URL);
   url.searchParams.append("__call", endpoint);
   url.searchParams.append("_format", "json");
   url.searchParams.append("_marker", "0");
   url.searchParams.append("api_version", "4");
-  url.searchParams.append("ctx", "web6dot0");
+  url.searchParams.append("ctx", ctx);
 
   Object.keys(params).forEach((key) =>
     url.searchParams.append(key, String(params[key])),
@@ -414,4 +416,29 @@ export async function getLyrics(
     lyrics: data.lyrics ?? "",
     snippet: data.snippet ?? null,
   };
+}
+
+interface RawSuggestionsResponse {
+  [songId: string]: RawSong[] | undefined;
+}
+
+export async function getSongSuggestions({
+  songId,
+  limit,
+}: {
+  songId: string;
+  limit: number;
+}): Promise<Song[]> {
+  const data = await fetchFromJiosaavn<RawSuggestionsResponse>(
+    SONG_SUGGESTIONS_ENDPOINT,
+    {
+      pid: songId,
+      n: limit,
+    },
+    "android",
+  );
+
+  return (data[songId] ?? [])
+    .map(createSongPayload)
+    .slice(0, limit);
 }

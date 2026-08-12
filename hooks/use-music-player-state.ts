@@ -5,7 +5,7 @@ import { createMusicManager, MusicManager, EqSettings } from "@/lib/music-manage
 import { createShortcutManager } from "@/lib/shortcut-manager";
 import { formatSeconds } from "@/lib/format";
 import { QueueItem } from "@/lib/queue-manager";
-import { searchSongs, DEFAULT_QUERY } from "@/lib/song-api";
+import { searchSongs, getSongSuggestions, DEFAULT_QUERY } from "@/lib/song-api";
 import { DurationControl } from "@/components/control/timeline";
 import { setupMediaSession, updateMediaSessionMetadata } from "@/lib/media-session";
 import { VisualizerMode } from "@/components/music-visualizer";
@@ -25,6 +25,9 @@ export function useMusicPlayerState() {
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>("spectrum");
   const [eq, setEqState] = useState<EqSettings>({ bass: 0, mid: 0, treble: 0 });
   const [favoriteSongs, setFavoriteSongs] = useState<QueueItem[]>([]);
+  const [radioActive, setRadioActive] = useState(false);
+  const radioActiveRef = useRef(false);
+  const radioRefillingRef = useRef(false);
 
   const [gradientColors, setGradientColors] = useState<[string, string, string]>(() =>
     generatePaletteFromSeed(DEFAULT_QUERY)
@@ -131,6 +134,62 @@ export function useMusicPlayerState() {
 
   const isFavorite = (songId: string) => favoriteSongs.some((s) => s.id === songId);
 
+  const startRadio = async (song: QueueItem) => {
+    if (!musicManager) return;
+
+    radioActiveRef.current = true;
+    setRadioActive(true);
+
+    try {
+      const suggestions = await getSongSuggestions(song.id, 20);
+
+      if (!radioActiveRef.current) return;
+
+      const queue = [song, ...suggestions.filter((s) => s.id !== song.id)];
+      musicManager.queueManager.setSongs(queue);
+      setSongs(queue);
+      musicManager.queueManager.setIndex(song.id);
+      void musicManager.play().catch(() => {});
+    } catch (error) {
+      console.error("Failed to start radio:", error);
+      radioActiveRef.current = false;
+      setRadioActive(false);
+    }
+  };
+
+  const stopRadio = () => {
+    radioActiveRef.current = false;
+    setRadioActive(false);
+  };
+
+  useEffect(() => {
+    if (!radioActiveRef.current || !musicManager || radioRefillingRef.current) return;
+    if (!currentSong) return;
+
+    const pending = musicManager.queueManager.getPendingSongs().length;
+    if (pending >= 5) return;
+
+    radioRefillingRef.current = true;
+    getSongSuggestions(currentSong.id, 20)
+      .then((suggestions) => {
+        if (!radioActiveRef.current || !musicManager) return;
+
+        const existingIds = new Set(musicManager.queueManager.songs.map((s) => s.id));
+        const fresh = suggestions.filter((s) => !existingIds.has(s.id));
+        if (fresh.length === 0) return;
+
+        const nextQueue = [...musicManager.queueManager.songs, ...fresh];
+        musicManager.queueManager.setSongs(nextQueue);
+        setSongs(nextQueue);
+      })
+      .catch((error) => {
+        console.error("Failed to refill radio:", error);
+      })
+      .finally(() => {
+        radioRefillingRef.current = false;
+      });
+  }, [currentSong, musicManager]);
+
   const handleCanvasClick = (e: MouseEvent) => {
     if (!musicManager || e.button !== 0) return;
 
@@ -163,6 +222,9 @@ export function useMusicPlayerState() {
     favoriteSongs,
     toggleFavorite,
     isFavorite,
+    radioActive,
+    startRadio,
+    stopRadio,
     gradientColors,
     handleCanvasClick,
   };

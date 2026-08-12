@@ -10,6 +10,7 @@ import { SongSearch } from "@/components/control/song-search";
 import { FavoritesList } from "@/components/control/song-list";
 import { PlaylistSearch } from "@/components/control/playlist-search";
 import { TimeControls } from "@/components/control/time-controls";
+import { RadioControl } from "@/components/control/radio-control";
 import { Equalizer } from "@/components/control/equalizer";
 import { useMusicPlayer } from "@/lib/player-context";
 import { motion, AnimatePresence } from "framer-motion";
@@ -123,6 +124,7 @@ export function Menu() {
         {/* Persistent Bottom Time Controls */}
         <div className="border-t border-purple-200/10 pt-2 mt-3 flex justify-between items-center">
           <TimeControls />
+          <RadioControl />
         </div>
       </PopoverContent>
     </Popover>
