@@ -2,7 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [new URL('https://c.saavncdn.com/**')],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "c.saavncdn.com",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
