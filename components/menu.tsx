@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/popover";
 import { SongSearch } from "@/components/control/song-search";
 import { FavoritesList } from "@/components/control/song-list";
+import { PlaylistSearch } from "@/components/control/playlist-search";
 import { TimeControls } from "@/components/control/time-controls";
 import { Equalizer } from "@/components/control/equalizer";
 import { useMusicPlayer } from "@/lib/player-context";
 import { motion, AnimatePresence } from "framer-motion";
 
-type MenuTab = "tracks" | "favorites" | "settings";
+type MenuTab = "tracks" | "favorites" | "playlists" | "settings";
 
 export function Menu() {
   const { musicManager, favoriteSongs } = useMusicPlayer();
@@ -73,6 +74,16 @@ export function Menu() {
             )}
           </button>
           <button
+            onClick={() => setActiveTab("playlists")}
+            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              activeTab === "playlists"
+                ? "bg-purple-500/40 text-purple-100 shadow-sm"
+                : "text-purple-200/60 hover:text-purple-200"
+            }`}
+          >
+            Playlists
+          </button>
+          <button
             onClick={() => setActiveTab("settings")}
             className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               activeTab === "settings"
@@ -103,6 +114,7 @@ export function Menu() {
             >
               {activeTab === "tracks" && <SongSearch />}
               {activeTab === "favorites" && <FavoritesList />}
+              {activeTab === "playlists" && <PlaylistSearch />}
               {activeTab === "settings" && <Equalizer />}
             </motion.div>
           </AnimatePresence>

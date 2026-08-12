@@ -136,7 +136,7 @@ export function useMusicPlayerState() {
 
     const target = e.target as Element;
     const isInteractive = target.closest(
-      "button, input, a, [role='dialog'], [data-radix-popper-content-wrapper], .cursor-pointer"
+      "button, input, a, [role='dialog'], [data-radix-popper-content-wrapper], .cursor-pointer, .lyrics-panel"
     );
 
     if (isInteractive) return;

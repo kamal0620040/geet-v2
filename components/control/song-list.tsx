@@ -20,7 +20,7 @@ export function SongList() {
   return (
     <div className="scrollbar-purple flex flex-col max-h-70 overflow-y-auto -mx-1 pr-1">
       {songs.map((song) => (
-        <Item
+        <SongItem
           key={song.id}
           song={song}
           playing={song.id === currentSong?.id}
@@ -101,7 +101,7 @@ export function FavoritesList() {
 
       <div className="scrollbar-purple flex flex-col max-h-60 overflow-y-auto -mx-1 pr-1">
         {favoriteSongs.map((song) => (
-          <Item
+          <SongItem
             key={song.id}
             song={song}
             playing={song.id === currentSong?.id}
@@ -118,7 +118,7 @@ export function FavoritesList() {
   );
 }
 
-function Item({
+export function SongItem({
   song,
   playing,
   favorited,

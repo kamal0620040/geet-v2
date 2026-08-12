@@ -42,6 +42,7 @@ interface RawSong {
     release_date?: string;
     has_lyrics?: string;
     lyrics_id?: string;
+    lyrics_snippet?: string;
     copyright_text?: string;
     artistMap?: {
       primary_artists?: RawArtist[];
@@ -59,6 +60,9 @@ interface RawSearchResponse {
 
 const API_URL = "https://www.jiosaavn.com/api.php";
 const SEARCH_ENDPOINT = "search.getResults";
+const SEARCH_PLAYLISTS_ENDPOINT = "search.getPlaylistResults";
+const PLAYLIST_DETAILS_ENDPOINT = "playlist.getDetails";
+const LYRICS_ENDPOINT = "lyrics.getLyrics";
 
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -86,9 +90,12 @@ const userAgents = [
 const randomUserAgent = () =>
   userAgents[Math.floor(Math.random() * userAgents.length)];
 
-const fetchFromJiosaavn = async <T>(params: Record<string, string | number>): Promise<T> => {
+const fetchFromJiosaavn = async <T>(
+  endpoint: string,
+  params: Record<string, string | number>,
+): Promise<T> => {
   const url = new URL(API_URL);
-  url.searchParams.append("__call", SEARCH_ENDPOINT);
+  url.searchParams.append("__call", endpoint);
   url.searchParams.append("_format", "json");
   url.searchParams.append("_marker", "0");
   url.searchParams.append("api_version", "4");
@@ -176,7 +183,9 @@ const createSongPayload = (song: RawSong): Song => ({
   playCount: song.play_count ? Number(song.play_count) : 0,
   language: song.language ?? "",
   hasLyrics: song.more_info?.has_lyrics === "true",
-  lyricsId: song.more_info?.lyrics_id ?? null,
+  lyricsId:
+    song.more_info?.lyrics_id ||
+    (song.more_info?.has_lyrics === "true" ? song.id ?? null : null),
   url: song.perma_url ?? "",
   copyright: song.more_info?.copyright_text ?? "",
   album: {
@@ -204,7 +213,7 @@ export async function searchSongs({
   page,
   limit,
 }: JiosaavnSearchArgs): Promise<JiosaavnSearchResult> {
-  const data = await fetchFromJiosaavn<RawSearchResponse>({
+  const data = await fetchFromJiosaavn<RawSearchResponse>(SEARCH_ENDPOINT, {
     q: query,
     p: page,
     n: limit,
@@ -214,5 +223,195 @@ export async function searchSongs({
     total: data.total ?? 0,
     start: data.start ?? 0,
     results: (data.results ?? []).map(createSongPayload).slice(0, limit),
+  };
+}
+
+export type ImageLink = { quality: string; url: string };
+
+export interface PlaylistCatalogItem {
+  id: string;
+  name: string;
+  type: string;
+  image: ImageLink[];
+  url: string;
+  songCount: number | null;
+  language: string;
+  explicitContent: boolean;
+}
+
+export interface PlaylistArtist {
+  id: string;
+  name: string;
+  role: string;
+  image: ImageLink[];
+  type: string;
+  url: string;
+}
+
+export interface PlaylistDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  year: number | null;
+  type: string;
+  playCount: number | null;
+  language: string;
+  explicitContent: boolean;
+  songCount: number | null;
+  url: string;
+  image: ImageLink[];
+  songs: Song[] | null;
+  artists: PlaylistArtist[] | null;
+}
+
+interface RawPlaylistCatalogItem {
+  id?: string;
+  title?: string;
+  type?: string;
+  image?: string;
+  perma_url?: string;
+  explicit_content?: string;
+  more_info?: {
+    song_count?: string;
+    language?: string;
+  };
+}
+
+interface RawPlaylistSearchResponse {
+  total?: number;
+  start?: number;
+  results?: RawPlaylistCatalogItem[];
+}
+
+interface RawPlaylistSong {
+  id?: string;
+  title?: string;
+  perma_url?: string;
+  language?: string;
+  more_info?: {
+    album?: string;
+    album_id?: string;
+    album_url?: string;
+    label?: string;
+    duration?: string;
+    encrypted_media_url?: string;
+    lyrics_id?: string;
+  };
+}
+
+interface RawPlaylistDetails {
+  id?: string;
+  title?: string;
+  header_desc?: string;
+  type?: string;
+  perma_url?: string;
+  image?: string;
+  language?: string;
+  year?: string;
+  play_count?: string;
+  explicit_content?: string;
+  list_count?: string;
+  list?: RawPlaylistSong[];
+  more_info?: {
+    artists?: RawArtist[];
+  };
+}
+
+interface RawLyricsResponse {
+  lyrics?: string;
+  snippet?: string;
+  lyrics_copyright?: string;
+}
+
+const createSearchPlaylistPayload = (
+  playlist: RawPlaylistCatalogItem,
+): PlaylistCatalogItem => ({
+  id: playlist.id ?? "",
+  name: playlist.title ?? "",
+  type: playlist.type ?? "",
+  image: createImageLinks(playlist.image ?? ""),
+  url: playlist.perma_url ?? "",
+  songCount: playlist.more_info?.song_count
+    ? Number(playlist.more_info.song_count)
+    : null,
+  language: playlist.more_info?.language ?? "",
+  explicitContent: playlist.explicit_content === "1",
+});
+
+const createPlaylistPayload = (
+  playlist: RawPlaylistDetails,
+  limit: number,
+): PlaylistDetail => ({
+  id: playlist.id ?? "",
+  name: playlist.title ?? "",
+  description: playlist.header_desc ?? null,
+  year: playlist.year ? Number(playlist.year) : null,
+  type: playlist.type ?? "",
+  playCount: playlist.play_count ? Number(playlist.play_count) : null,
+  language: playlist.language ?? "",
+  explicitContent: playlist.explicit_content === "1",
+  songCount: playlist.list_count ? Number(playlist.list_count) : null,
+  url: playlist.perma_url ?? "",
+  image: createImageLinks(playlist.image ?? ""),
+  songs: (playlist.list ?? []).slice(0, limit).map(createSongPayload),
+  artists: (playlist.more_info?.artists ?? []).map(createArtistMapPayload) ?? null,
+});
+
+export async function searchPlaylists({
+  query,
+  page,
+  limit,
+}: JiosaavnSearchArgs): Promise<{
+  total: number;
+  start: number;
+  results: PlaylistCatalogItem[];
+}> {
+  const data = await fetchFromJiosaavn<RawPlaylistSearchResponse>(
+    SEARCH_PLAYLISTS_ENDPOINT,
+    {
+      q: query,
+      p: page,
+      n: limit,
+    },
+  );
+
+  return {
+    total: data.total ?? 0,
+    start: data.start ?? 0,
+    results: (data.results ?? []).map(createSearchPlaylistPayload),
+  };
+}
+
+export async function getPlaylist({
+  id,
+  page,
+  limit,
+}: {
+  id: string;
+  page: number;
+  limit: number;
+}): Promise<PlaylistDetail> {
+  const data = await fetchFromJiosaavn<RawPlaylistDetails>(
+    PLAYLIST_DETAILS_ENDPOINT,
+    {
+      listid: id,
+      n: limit,
+      p: page,
+    },
+  );
+
+  return createPlaylistPayload(data, limit);
+}
+
+export async function getLyrics(
+  lyricsId: string,
+): Promise<{ lyrics: string; snippet: string | null }> {
+  const data = await fetchFromJiosaavn<RawLyricsResponse>(LYRICS_ENDPOINT, {
+    lyrics_id: lyricsId,
+  });
+
+  return {
+    lyrics: data.lyrics ?? "",
+    snippet: data.snippet ?? null,
   };
 }
