@@ -1,6 +1,6 @@
 import { Song } from "@/music/data";
 
-const BASE_URL = "https://saavn.sumit.co/api";
+const BASE_URL = "/api";
 
 export const DEFAULT_QUERY = "top song";
 
