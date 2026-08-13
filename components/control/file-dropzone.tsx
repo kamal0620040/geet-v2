@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, DragEvent } from "react";
+import { useEffect, useState } from "react";
 import { useMusicPlayer } from "@/lib/player-context";
 import { QueueItem } from "@/lib/queue-manager";
 import { motion, AnimatePresence } from "framer-motion";

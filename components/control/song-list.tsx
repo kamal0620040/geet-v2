@@ -132,38 +132,41 @@ export function SongItem({
   onToggleFavorite: (e: MouseEvent) => void;
 }) {
   return (
-    <div
-      className={cn(
-        "group flex flex-row items-center gap-3 rounded-xl p-2 transition-colors cursor-pointer",
-        playing ? "bg-purple-400/20" : "hover:bg-purple-200/5",
-      )}
-      onClick={() => onPlay(song)}
-    >
-      {song.image && (
-        <Image
-          alt="cover"
-          src={song.image[song.image.length - 1].url}
-          className="size-12 rounded-md shrink-0"
-          width={48}
-          height={48}
-        />
-      )}
-      <div className="min-w-0 flex-1 text-left">
-        <p className="text-sm font-medium truncate">
-          {decodeHtmlEntities(song.name)}
-        </p>
-        <p className="text-xs text-purple-200/70 truncate">
-          {song.artists?.primary
-            ?.slice(0, 2)
-            ?.map((e) => e.name)
-            ?.join(", ")}
-        </p>
-      </div>
+    <div className="relative">
+      <button
+        type="button"
+        className={cn(
+          "group flex w-full flex-row items-center gap-3 rounded-xl p-2 pr-10 text-left transition-colors cursor-pointer",
+          playing ? "bg-purple-400/20" : "hover:bg-purple-200/5",
+        )}
+        onClick={() => onPlay(song)}
+      >
+        {song.image && (
+          <Image
+            alt="cover"
+            src={song.image[song.image.length - 1].url}
+            className="size-12 rounded-md shrink-0"
+            width={48}
+            height={48}
+          />
+        )}
+        <div className="min-w-0 flex-1 text-left">
+          <p className="text-sm font-medium truncate">
+            {decodeHtmlEntities(song.name)}
+          </p>
+          <p className="text-xs text-purple-200/70 truncate">
+            {song.artists?.primary
+              ?.slice(0, 2)
+              ?.map((e) => e.name)
+              ?.join(", ")}
+          </p>
+        </div>
+      </button>
       <button
         type="button"
         aria-label="Favorite song"
         onClick={onToggleFavorite}
-        className="p-1 text-purple-200/40 hover:text-pink-400 transition-colors cursor-pointer"
+        className="absolute right-1 top-1/2 -translate-y-1/2 flex size-8 items-center justify-center p-1 text-purple-200/40 hover:text-pink-400 transition-colors cursor-pointer"
       >
         <svg
           width="18"

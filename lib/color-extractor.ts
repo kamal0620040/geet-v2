@@ -4,7 +4,7 @@ export async function extractColorsFromSong(
 ): Promise<[string, string, string]> {
   const fallback = generatePaletteFromSeed(seedString || "neon-wave");
 
-  if (!imageUrl || typeof window === "undefined") {
+  if (!imageUrl || globalThis.window === undefined) {
     return fallback;
   }
 

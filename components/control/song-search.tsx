@@ -6,7 +6,7 @@ import { SongList } from "@/components/control/song-list";
 import { useMusicPlayer } from "@/lib/player-context";
 
 export function SongSearch() {
-  const { musicManager, songs, setSongs } = useMusicPlayer();
+  const { musicManager, setSongs } = useMusicPlayer();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
 

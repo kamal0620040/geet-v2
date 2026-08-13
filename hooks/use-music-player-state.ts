@@ -11,6 +11,10 @@ import { setupMediaSession, updateMediaSessionMetadata } from "@/lib/media-sessi
 import { VisualizerMode } from "@/components/music-visualizer";
 import { extractColorsFromSong, generatePaletteFromSeed } from "@/lib/color-extractor";
 
+function isVisualizerMode(value: string | null): value is VisualizerMode {
+  return value === "spectrum" || value === "waveform" || value === "radial";
+}
+
 export function useMusicPlayerState() {
   const timelineRef = useRef<DurationControl | undefined>(undefined);
   const timeLabelRef = useRef<HTMLParagraphElement>(null);
@@ -34,7 +38,7 @@ export function useMusicPlayerState() {
   );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (globalThis.window !== undefined) {
       const savedFavs = localStorage.getItem("neon_wave_favorite_songs");
       if (savedFavs) {
         try {
@@ -42,8 +46,10 @@ export function useMusicPlayerState() {
           if (Array.isArray(parsed)) setFavoriteSongs(parsed);
         } catch {}
       }
-      const savedMode = localStorage.getItem("neon_wave_vis_mode") as VisualizerMode;
-      if (savedMode) setVisualizerMode(savedMode);
+      const savedMode = localStorage.getItem("neon_wave_vis_mode");
+      if (isVisualizerMode(savedMode)) {
+        setVisualizerMode(savedMode);
+      }
     }
   }, []);
 
@@ -113,7 +119,7 @@ export function useMusicPlayerState() {
 
   const handleSetVisualizerMode = (mode: VisualizerMode) => {
     setVisualizerMode(mode);
-    if (typeof window !== "undefined") {
+    if (globalThis.window !== undefined) {
       localStorage.setItem("neon_wave_vis_mode", mode);
     }
   };
@@ -125,7 +131,7 @@ export function useMusicPlayerState() {
         ? prev.filter((s) => s.id !== song.id)
         : [...prev, song];
 
-      if (typeof window !== "undefined") {
+      if (globalThis.window !== undefined) {
         localStorage.setItem("neon_wave_favorite_songs", JSON.stringify(next));
       }
       return next;
@@ -193,7 +199,8 @@ export function useMusicPlayerState() {
   const handleCanvasClick = (e: MouseEvent) => {
     if (!musicManager || e.button !== 0) return;
 
-    const target = e.target as Element;
+    const target = e.target;
+    if (!(target instanceof Element)) return;
     const isInteractive = target.closest(
       "button, input, a, [role='dialog'], [data-radix-popper-content-wrapper], .cursor-pointer, .lyrics-panel"
     );

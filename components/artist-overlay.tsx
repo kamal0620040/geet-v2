@@ -192,11 +192,12 @@ export function ArtistOverlay({
 
                 <div className="scrollbar-purple flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-2 pb-2">
                   {artist.topSongs.map((song, index) => (
-                    <div
+                    <button
                       key={song.id}
+                      type="button"
                       onClick={() => playSong(song)}
                       className={cn(
-                        "group flex cursor-pointer flex-row items-center gap-3 rounded-lg p-2 transition-colors",
+                        "group flex w-full cursor-pointer flex-row items-center gap-3 rounded-lg p-2 text-left transition-colors",
                         song.id === currentId
                           ? "bg-purple-400/20"
                           : "hover:bg-purple-200/10",
@@ -225,7 +226,7 @@ export function ArtistOverlay({
                             .join(", ")}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </>

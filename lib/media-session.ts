@@ -3,7 +3,7 @@ import { QueueItem } from "@/lib/queue-manager";
 import { decodeHtmlEntities } from "@/lib/utils";
 
 export function setupMediaSession(manager: MusicManager) {
-  if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+  if (globalThis.window === undefined || !("mediaSession" in navigator)) return;
 
   const ms = navigator.mediaSession;
 
@@ -31,7 +31,7 @@ export function setupMediaSession(manager: MusicManager) {
 }
 
 export function updateMediaSessionMetadata(song: QueueItem | undefined) {
-  if (typeof window === "undefined" || !("mediaSession" in navigator) || !song) {
+  if (globalThis.window === undefined || !("mediaSession" in navigator) || !song) {
     return;
   }
 

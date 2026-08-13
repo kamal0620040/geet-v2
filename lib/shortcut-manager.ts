@@ -14,7 +14,7 @@ export function createShortcutManager({
   musicManager,
 }: ShortcutManagerOptions): ShortcutManager {
   const handler = (event: KeyboardEvent) => {
-    const target = event.target as HTMLElement | null;
+    const target = event.target instanceof HTMLElement ? event.target : null;
     const isInput =
       target &&
       (target.tagName === "INPUT" ||

@@ -4,11 +4,13 @@ import {
   createSearchPlaylistPayload,
 } from "@/lib/jiosaavn/mappers";
 import {
+  rawPlaylistDetailsSchema,
+  rawPlaylistSearchResponseSchema,
+} from "@/lib/jiosaavn/schemas";
+import {
   JiosaavnSearchArgs,
   PlaylistCatalogItem,
   PlaylistDetail,
-  RawPlaylistDetails,
-  RawPlaylistSearchResponse,
 } from "@/lib/jiosaavn/types";
 
 export async function searchPlaylists({
@@ -20,19 +22,20 @@ export async function searchPlaylists({
   start: number;
   results: PlaylistCatalogItem[];
 }> {
-  const data = await fetchFromJiosaavn<RawPlaylistSearchResponse>(
+  const data = await fetchFromJiosaavn(
     endpoints.searchPlaylists,
     {
       q: query,
       p: page,
       n: limit,
     },
+    rawPlaylistSearchResponseSchema,
   );
 
   return {
-    total: data.total ?? 0,
-    start: data.start ?? 0,
-    results: (data.results ?? []).map(createSearchPlaylistPayload),
+    total: data.total,
+    start: data.start,
+    results: data.results.map(createSearchPlaylistPayload),
   };
 }
 
@@ -45,13 +48,14 @@ export async function getPlaylist({
   page: number;
   limit: number;
 }): Promise<PlaylistDetail> {
-  const data = await fetchFromJiosaavn<RawPlaylistDetails>(
+  const data = await fetchFromJiosaavn(
     endpoints.playlistDetails,
     {
       listid: id,
       n: limit,
       p: page,
     },
+    rawPlaylistDetailsSchema,
   );
 
   return createPlaylistPayload(data, limit);

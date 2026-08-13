@@ -73,7 +73,7 @@ export function Timeline({
       container.removeEventListener("touchstart", onStart);
       container.removeEventListener("mousedown", onStart);
     };
-  }, [musicManager]);
+  }, [musicManager, durationRef]);
 
   return (
     <div

@@ -1,17 +1,24 @@
+import { z } from "zod";
+import { songSchema } from "@/lib/schemas";
 import { Song } from "@/music/data";
 
 const BASE_URL = "/api";
 
 export const DEFAULT_QUERY = "top song";
 
-interface SearchSongsResponse {
-  success: boolean;
-  data: {
-    total: number;
-    start: number;
-    results: Song[];
-  };
-}
+const searchSongsEnvelopeSchema = z.object({
+  success: z.literal(true),
+  data: z.object({
+    total: z.number(),
+    start: z.number(),
+    results: z.array(songSchema),
+  }),
+});
+
+const suggestionsEnvelopeSchema = z.object({
+  success: z.literal(true),
+  data: z.array(songSchema),
+});
 
 export async function searchSongs(query: string, limit = 10): Promise<Song[]> {
   const url = `${BASE_URL}/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`;
@@ -21,13 +28,12 @@ export async function searchSongs(query: string, limit = 10): Promise<Song[]> {
     throw new Error(`Failed to search songs: ${response.status}`);
   }
 
-  const data = (await response.json()) as SearchSongsResponse;
-  return data.data.results;
-}
-
-interface SuggestionsResponse {
-  success: boolean;
-  data: Song[];
+  const payload = await response.json();
+  const parsed = searchSongsEnvelopeSchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new Error("Invalid search songs response");
+  }
+  return parsed.data.data.results;
 }
 
 export async function getSongSuggestions(
@@ -41,10 +47,10 @@ export async function getSongSuggestions(
     throw new Error(`Failed to fetch song suggestions: ${response.status}`);
   }
 
-  const data = (await response.json()) as SuggestionsResponse;
-  if (!data.success) {
+  const payload = await response.json();
+  const parsed = suggestionsEnvelopeSchema.safeParse(payload);
+  if (!parsed.success) {
     throw new Error("Failed to fetch song suggestions");
   }
-
-  return data.data;
+  return parsed.data.data;
 }

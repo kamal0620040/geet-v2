@@ -1,16 +1,3 @@
-type CustomCanvasRenderingContext2D = Omit<
-  CanvasRenderingContext2D,
-  "roundRect"
-> & {
-  roundRect?: (
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    radius?: number | DOMPointInit | (number | DOMPointInit)[],
-  ) => void;
-};
-
 export const calculateBarData = (
   frequencyData: Uint8Array,
   width: number,
@@ -46,7 +33,7 @@ export const draw = (
   backgroundColor: string,
   barColor: string,
 ): void => {
-  const ctx = canvas.getContext("2d") as CustomCanvasRenderingContext2D;
+  const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);

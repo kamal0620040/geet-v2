@@ -5,17 +5,10 @@ import {
 } from "@/lib/jiosaavn/mappers";
 import { Artist } from "@/music/data";
 import {
-  ArtistDetail,
-  JiosaavnSearchArgs,
-  RawArtist,
-  RawArtistPageDetails,
-} from "@/lib/jiosaavn/types";
-
-interface RawArtistSearchResponse {
-  total?: number;
-  start?: number;
-  results?: RawArtist[];
-}
+  rawArtistPageDetailsSchema,
+  rawArtistSearchResponseSchema,
+} from "@/lib/jiosaavn/schemas";
+import { ArtistDetail, JiosaavnSearchArgs } from "@/lib/jiosaavn/types";
 
 export async function searchArtists({
   query,
@@ -26,19 +19,20 @@ export async function searchArtists({
   start: number;
   results: Artist[];
 }> {
-  const data = await fetchFromJiosaavn<RawArtistSearchResponse>(
+  const data = await fetchFromJiosaavn(
     endpoints.searchArtists,
     {
       q: query,
       p: page,
       n: limit,
     },
+    rawArtistSearchResponseSchema,
   );
 
   return {
-    total: data.total ?? 0,
-    start: data.start ?? 0,
-    results: (data.results ?? []).map(createArtistMapPayload),
+    total: data.total,
+    start: data.start,
+    results: data.results.map(createArtistMapPayload),
   };
 }
 
@@ -49,7 +43,7 @@ export async function getArtistById({
   id: string;
   limit: number;
 }): Promise<ArtistDetail> {
-  const data = await fetchFromJiosaavn<RawArtistPageDetails>(
+  const data = await fetchFromJiosaavn(
     endpoints.artistDetails,
     {
       artistId: id,
@@ -57,6 +51,7 @@ export async function getArtistById({
       n_albums: 10,
       n_charts: 10,
     },
+    rawArtistPageDetailsSchema,
   );
 
   return createArtistDetailPayload(data);

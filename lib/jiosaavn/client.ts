@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 const API_URL = "https://www.jiosaavn.com/api.php";
 const SEARCH_ENDPOINT = "search.getResults";
 const SEARCH_PLAYLISTS_ENDPOINT = "search.getPlaylistResults";
@@ -36,6 +38,7 @@ const randomUserAgent = () =>
 export const fetchFromJiosaavn = async <T>(
   endpoint: string,
   params: Record<string, string | number>,
+  schema: z.ZodType<T>,
   ctx: string = "web6dot0",
 ): Promise<T> => {
   const url = new URL(API_URL);
@@ -58,7 +61,12 @@ export const fetchFromJiosaavn = async <T>(
     throw new Error(`JioSaavn API responded with ${response.status}`);
   }
 
-  return (await response.json()) as T;
+  const payload = await response.json();
+  const result = schema.safeParse(payload);
+  if (!result.success) {
+    throw new Error(`JioSaavn API responded with an unexpected shape for ${endpoint}`);
+  }
+  return result.data;
 };
 
 export const endpoints = {

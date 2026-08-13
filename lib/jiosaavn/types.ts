@@ -1,4 +1,4 @@
-import { Song } from "@/music/data";
+﻿import { Song } from "@/music/data";
 
 export interface JiosaavnSearchArgs {
   query: string;
@@ -65,135 +65,112 @@ export interface SongLyrics {
   snippet: string | null;
 }
 
-interface RawArtist {
-  id?: string;
-  name?: string;
-  role?: string;
-  type?: string;
-  image?: string;
-  perma_url?: string;
+export interface RawArtist {
+  id: string;
+  name: string;
+  role: string;
+  type: string;
+  image: string;
+  perma_url: string;
 }
 
-interface RawSong {
-  id?: string;
-  title?: string;
-  perma_url?: string;
-  image?: string;
-  language?: string;
-  year?: string;
-  play_count?: string;
-  explicit_content?: string;
-  type?: string;
-  more_info?: {
-    album?: string;
-    album_id?: string;
-    album_url?: string;
-    label?: string;
-    duration?: string;
-    encrypted_media_url?: string;
-    release_date?: string;
-    has_lyrics?: string;
-    lyrics_id?: string;
-    lyrics_snippet?: string;
-    copyright_text?: string;
-    artistMap?: {
-      primary_artists?: RawArtist[];
-      featured_artists?: RawArtist[];
-      artists?: RawArtist[];
-    };
+export interface RawSongMoreInfo {
+  album: string;
+  album_id: string;
+  album_url: string;
+  label: string;
+  duration: string;
+  encrypted_media_url: string;
+  release_date: string | null;
+  has_lyrics: string;
+  lyrics_id?: string;
+  copyright_text: string;
+  artistMap: {
+    primary_artists: RawArtist[];
+    featured_artists: RawArtist[];
+    artists: RawArtist[];
   };
 }
 
-interface RawSearchResponse {
-  total?: number;
-  start?: number;
-  results?: RawSong[];
+export interface RawSong {
+  id: string;
+  title: string;
+  year: string;
+  play_count: string;
+  explicit_content: string;
+  language: string;
+  perma_url: string;
+  image: string;
+  more_info: RawSongMoreInfo;
 }
 
-interface RawPlaylistCatalogItem {
-  id?: string;
-  title?: string;
-  type?: string;
-  image?: string;
-  perma_url?: string;
-  explicit_content?: string;
-  more_info?: {
-    song_count?: string;
-    language?: string;
+export interface RawSearchResponse {
+  total: number;
+  start: number;
+  results: RawSong[];
+}
+
+export interface RawArtistSearchResponse {
+  total: number;
+  start: number;
+  results: RawArtist[];
+}
+
+export interface RawSuggestionsResponse {
+  [songId: string]: RawSong[];
+}
+
+export interface RawPlaylistCatalogItem {
+  id: string;
+  title: string;
+  type: string;
+  image: string;
+  perma_url: string;
+  explicit_content: string;
+  more_info: {
+    song_count: string;
+    language: string;
   };
 }
 
-interface RawPlaylistSearchResponse {
-  total?: number;
-  start?: number;
-  results?: RawPlaylistCatalogItem[];
+export interface RawPlaylistSearchResponse {
+  total: number;
+  start: number;
+  results: RawPlaylistCatalogItem[];
 }
 
-interface RawPlaylistSong {
-  id?: string;
-  title?: string;
-  perma_url?: string;
-  language?: string;
-  more_info?: {
-    album?: string;
-    album_id?: string;
-    album_url?: string;
-    label?: string;
-    duration?: string;
-    encrypted_media_url?: string;
-    lyrics_id?: string;
+export interface RawPlaylistDetails {
+  id: string;
+  title: string;
+  header_desc: string;
+  type: string;
+  perma_url: string;
+  image: string;
+  language: string;
+  year: string;
+  play_count: string;
+  explicit_content: string;
+  list_count: string;
+  list: RawSong[];
+  more_info: {
+    artists: RawArtist[];
   };
 }
 
-interface RawPlaylistDetails {
-  id?: string;
-  title?: string;
-  header_desc?: string;
-  type?: string;
-  perma_url?: string;
-  image?: string;
-  language?: string;
-  year?: string;
-  play_count?: string;
-  explicit_content?: string;
-  list_count?: string;
-  list?: RawPlaylistSong[];
-  more_info?: {
-    artists?: RawArtist[];
-  };
+export interface RawLyricsResponse {
+  lyrics: string;
+  script_tracking_url: string;
+  lyrics_copyright: string;
+  snippet: string;
 }
 
-interface RawLyricsResponse {
-  lyrics?: string;
-  snippet?: string;
-  lyrics_copyright?: string;
+export interface RawArtistPageDetails {
+  artistId: string;
+  name: string;
+  image: string;
+  follower_count: string;
+  dominantLanguage: string;
+  bio: string;
+  topSongs: RawSong[];
 }
 
-interface RawArtistPageDetails {
-  artistId?: string;
-  name?: string;
-  subtitle?: string;
-  image?: string;
-  follower_count?: string;
-  dominantLanguage?: string;
-  dominantType?: string;
-  bio?: string;
-  topSongs?: RawSong[] | { songs?: RawSong[] };
-}
-
-interface RawSuggestionsResponse {
-  [songId: string]: RawSong[] | undefined;
-}
-
-export type {
-  RawArtist,
-  RawSong,
-  RawSearchResponse,
-  RawPlaylistCatalogItem,
-  RawPlaylistSearchResponse,
-  RawPlaylistSong,
-  RawPlaylistDetails,
-  RawLyricsResponse,
-  RawSuggestionsResponse,
-  RawArtistPageDetails,
-};

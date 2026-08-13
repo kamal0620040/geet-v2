@@ -1,7 +1,10 @@
-interface GetLyricsResponse {
-  lyrics: string;
-  snippet: string | null;
-}
+import { z } from "zod";
+import { songLyricsSchema } from "@/lib/schemas";
+
+const lyricsEnvelopeSchema = z.object({
+  success: z.literal(true),
+  data: songLyricsSchema,
+});
 
 export async function getSongLyrics(lyricsId: string): Promise<string> {
   const response = await fetch(`/api/lyrics?id=${encodeURIComponent(lyricsId)}`);
@@ -9,13 +12,11 @@ export async function getSongLyrics(lyricsId: string): Promise<string> {
     throw new Error(`Failed to fetch lyrics: ${response.status}`);
   }
 
-  const json = (await response.json()) as {
-    success: boolean;
-    data: GetLyricsResponse;
-  };
-  if (!json.success) {
+  const payload = await response.json();
+  const parsed = lyricsEnvelopeSchema.safeParse(payload);
+  if (!parsed.success) {
     throw new Error("Failed to fetch lyrics");
   }
 
-  return json.data.lyrics;
+  return parsed.data.data.lyrics;
 }

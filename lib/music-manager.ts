@@ -123,7 +123,7 @@ export function createMusicManager({
       try {
         await audio.play();
       } catch (error) {
-        if ((error as DOMException)?.name !== "AbortError") {
+        if (!(error instanceof DOMException) || error.name !== "AbortError") {
           throw error;
         }
       }

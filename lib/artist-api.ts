@@ -1,30 +1,27 @@
-import { Song, Artist } from "@/music/data";
+import { z } from "zod";
+import {
+  artistDetailSchema,
+  artistSchema,
+} from "@/lib/schemas";
+import { Artist } from "@/music/data";
 
-export type ArtistDetail = {
-  id: string;
-  name: string;
-  image: { quality: string; url: string }[];
-  followerCount: string;
-  dominentLanguage: string;
-  description: string | null;
-  topSongs: Song[];
-};
+export type ArtistDetail = z.infer<typeof artistDetailSchema>;
 
 const BASE_URL = "/api";
 
-interface ArtistResponse {
-  success: boolean;
-  data: ArtistDetail;
-}
+const artistResponseSchema = z.object({
+  success: z.literal(true),
+  data: artistDetailSchema,
+});
 
-interface ArtistSearchResponse {
-  success: boolean;
-  data: {
-    total: number;
-    start: number;
-    results: Artist[];
-  };
-}
+const artistSearchResponseSchema = z.object({
+  success: z.literal(true),
+  data: z.object({
+    total: z.number(),
+    start: z.number(),
+    results: z.array(artistSchema),
+  }),
+});
 
 export async function getArtistDetail(
   id: string,
@@ -37,12 +34,13 @@ export async function getArtistDetail(
     throw new Error(`Failed to fetch artist: ${response.status}`);
   }
 
-  const data = (await response.json()) as ArtistResponse;
-  if (!data.success) {
+  const payload = await response.json();
+  const parsed = artistResponseSchema.safeParse(payload);
+  if (!parsed.success) {
     throw new Error("Failed to fetch artist");
   }
 
-  return data.data;
+  return parsed.data.data;
 }
 
 export async function searchArtists(
@@ -56,6 +54,11 @@ export async function searchArtists(
     throw new Error(`Failed to search artists: ${response.status}`);
   }
 
-  const data = (await response.json()) as ArtistSearchResponse;
-  return data.data.results;
+  const payload = await response.json();
+  const parsed = artistSearchResponseSchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new Error("Failed to search artists");
+  }
+
+  return parsed.data.data.results;
 }
