@@ -1,19 +1,25 @@
 "use client";
 
 import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 export function AnimatedTitle({ text }: { text: string }) {
-  const words = useMemo(() => text.split(" "), [text]);
+  const words = useMemo(() => {
+    let charIndex = 0;
+    return text.split(" ").map((word) => ({
+      wordKey: `${word}-${charIndex}`,
+      chars: word.split("").map((c) => ({ char: c, key: `${word}-${charIndex++}` })),
+    }));
+  }, [text]);
   let index = 0;
 
   return (
     <h1 className="text-6xl pr-14 font-light leading-[0.95] tracking-[-0.05em] sm:text-7xl md:pr-0 md:text-9xl md:leading-[0.9] md:tracking-[-0.1em]">
-      {words.map((word, i) => (
-        <motion.span key={i} className="inline-block mr-4 break-keep md:mr-8">
-          {word.split("").map((c, j) => (
-            <motion.span
-              key={`${c}-${j}`}
+      {words.map((word) => (
+        <m.span key={word.wordKey} className="inline-block mr-4 break-keep md:mr-8">
+          {word.chars.map((c) => (
+            <m.span
+              key={c.key}
               className="inline-block"
               initial={{ y: 20, opacity: 0 }}
               animate={{
@@ -26,10 +32,10 @@ export function AnimatedTitle({ text }: { text: string }) {
                 },
               }}
             >
-              {c}
-            </motion.span>
+              {c.char}
+            </m.span>
           ))}
-        </motion.span>
+        </m.span>
       ))}
     </h1>
   );

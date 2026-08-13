@@ -15,6 +15,11 @@ function isVisualizerMode(value: string | null): value is VisualizerMode {
   return value === "spectrum" || value === "waveform" || value === "radial";
 }
 
+const FAVORITES_KEY = "neon_wave_favorite_songs:v1";
+const VISUALIZER_KEY = "neon_wave_vis_mode:v1";
+const LEGACY_FAVORITES_KEY = "neon_wave_favorite_songs";
+const LEGACY_VISUALIZER_KEY = "neon_wave_vis_mode";
+
 export function useMusicPlayerState() {
   const timelineRef = useRef<DurationControl | undefined>(undefined);
   const timeLabelRef = useRef<HTMLParagraphElement>(null);
@@ -39,14 +44,18 @@ export function useMusicPlayerState() {
 
   useEffect(() => {
     if (globalThis.window !== undefined) {
-      const savedFavs = localStorage.getItem("neon_wave_favorite_songs");
+      const savedFavs =
+        localStorage.getItem(FAVORITES_KEY) ??
+        localStorage.getItem(LEGACY_FAVORITES_KEY);
       if (savedFavs) {
         try {
           const parsed = JSON.parse(savedFavs);
           if (Array.isArray(parsed)) setFavoriteSongs(parsed);
         } catch {}
       }
-      const savedMode = localStorage.getItem("neon_wave_vis_mode");
+      const savedMode =
+        localStorage.getItem(VISUALIZER_KEY) ??
+        localStorage.getItem(LEGACY_VISUALIZER_KEY);
       if (isVisualizerMode(savedMode)) {
         setVisualizerMode(savedMode);
       }
@@ -117,24 +126,25 @@ export function useMusicPlayerState() {
     musicManager?.setEq(newEq.bass, newEq.mid, newEq.treble);
   };
 
+  useEffect(() => {
+    if (globalThis.window !== undefined) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteSongs));
+    }
+  }, [favoriteSongs]);
+
   const handleSetVisualizerMode = (mode: VisualizerMode) => {
     setVisualizerMode(mode);
     if (globalThis.window !== undefined) {
-      localStorage.setItem("neon_wave_vis_mode", mode);
+      localStorage.setItem(VISUALIZER_KEY, mode);
     }
   };
 
   const toggleFavorite = (song: QueueItem) => {
     setFavoriteSongs((prev) => {
       const exists = prev.some((s) => s.id === song.id);
-      const next = exists
+      return exists
         ? prev.filter((s) => s.id !== song.id)
         : [...prev, song];
-
-      if (globalThis.window !== undefined) {
-        localStorage.setItem("neon_wave_favorite_songs", JSON.stringify(next));
-      }
-      return next;
     });
   };
 

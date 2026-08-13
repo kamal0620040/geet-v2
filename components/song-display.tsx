@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import { QueueItem } from "@/lib/queue-manager";
 
@@ -24,7 +24,7 @@ export function SongDisplay({
   onClickArtist?: (artistId: string) => void;
 }) {
   return (
-    <motion.div
+    <m.div
       key={song.url}
       initial={{ y: 10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -64,6 +64,6 @@ className="flex flex-1 flex-row items-center gap-3 mt-4 rounded-xl p-3 min-w-0"
           </p>
         ) : null}
       </div>
-    </motion.div>
+    </m.div>
   );
 }

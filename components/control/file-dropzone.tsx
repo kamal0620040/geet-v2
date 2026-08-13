@@ -1,13 +1,21 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMusicPlayer } from "@/lib/player-context";
 import { QueueItem } from "@/lib/queue-manager";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 export function FileDropzone() {
   const { musicManager, setSongs } = useMusicPlayer();
   const [isDragging, setIsDragging] = useState(false);
+  const objectUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      objectUrlsRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     let dragCounter = 0;
@@ -47,7 +55,9 @@ export function FileDropzone() {
       if (files.length === 0) return;
 
       const newSongs: QueueItem[] = files.map((file, idx) => {
+        // oxlint-disable-next-line react-doctor/no-create-object-url-without-revoke
         const objectUrl = URL.createObjectURL(file);
+        objectUrlsRef.current.push(objectUrl);
         const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
 
         return {
@@ -121,7 +131,7 @@ export function FileDropzone() {
   return (
     <AnimatePresence>
       {isDragging && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -149,8 +159,9 @@ export function FileDropzone() {
           <p className="text-sm text-purple-200/70 mt-1">
             Supports MP3, WAV, FLAC, OGG, and M4A tracks
           </p>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
 }
+

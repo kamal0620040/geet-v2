@@ -40,7 +40,8 @@ export function Timeline({
 
     const onMove = (e: TouchEvent | MouseEvent) => {
       if (!isDrawingRef.current) return;
-      const x = "clientX" in e ? e.clientX : e.touches[0].clientX;
+      const x = "clientX" in e ? e.clientX : e.touches[0]?.clientX;
+      if (x === undefined) return;
 
       setTimeline(getPercent(x) * 100);
       e.preventDefault();
@@ -48,7 +49,8 @@ export function Timeline({
 
     const onStop = (e: TouchEvent | MouseEvent) => {
       if (!isDrawingRef.current) return;
-      const x = "clientX" in e ? e.clientX : e.changedTouches[0].clientX;
+      const x = "clientX" in e ? e.clientX : e.changedTouches[0]?.clientX;
+      if (x === undefined) return;
 
       isDrawingRef.current = false;
       musicManager.setTime(getPercent(x) * musicManager.getDuration());

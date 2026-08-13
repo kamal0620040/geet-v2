@@ -13,7 +13,7 @@ import { TimeControls } from "@/components/control/time-controls";
 import { RadioControl } from "@/components/control/radio-control";
 import { Equalizer } from "@/components/control/equalizer";
 import { useMusicPlayer } from "@/lib/player-context";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 type MenuTab = "tracks" | "favorites" | "playlists" | "settings";
 
@@ -97,7 +97,7 @@ export function Menu() {
         </div>
 
         {/* Animated Height Container */}
-        <motion.div
+        <m.div
           layout
           transition={{
             type: "spring",
@@ -106,7 +106,7 @@ export function Menu() {
           }}
         >
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={activeTab}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -117,9 +117,9 @@ export function Menu() {
               {activeTab === "favorites" && <FavoritesList />}
               {activeTab === "playlists" && <PlaylistSearch />}
               {activeTab === "settings" && <Equalizer />}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
-        </motion.div>
+        </m.div>
 
         {/* Persistent Bottom Time Controls */}
         <div className="border-t border-purple-200/10 pt-2 mt-3 flex justify-between items-center">

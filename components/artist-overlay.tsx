@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import Image from "next/image";
 import { Music, X } from "lucide-react";
 import { getArtistDetail, ArtistDetail } from "@/lib/artist-api";
@@ -79,7 +79,7 @@ export function ArtistOverlay({
   return (
     <AnimatePresence>
       {artistId && (
-        <motion.div
+        <m.div
           key="artist-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -88,15 +88,14 @@ export function ArtistOverlay({
           className="fixed inset-0 z-30 flex items-center justify-center bg-black/30 p-4"
           onClick={onClose}
         >
-          <motion.div
+          <m.div
             initial={{ scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.96, opacity: 0 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
             className="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-xl border border-purple-200/10 bg-purple-950/40 shadow-lg backdrop-blur-lg text-purple-200"
-          >
-            <div className="flex items-center justify-between px-4 pt-4 shrink-0">
+          >            <div className="flex items-center justify-between px-4 pt-4 shrink-0">
               <h2 className="truncate text-xs font-semibold uppercase tracking-wider text-purple-200/80">
                 {isLoading || status === "error" ? "Artist" : artist?.name ?? "Artist"}
               </h2>
@@ -231,8 +230,8 @@ export function ArtistOverlay({
                 </div>
               </>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

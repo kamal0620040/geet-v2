@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { LazyMotion, domMax, m } from "framer-motion";
 import { useState } from "react";
 import { MusicPlayerProvider } from "@/lib/player-context";
 import { useMusicPlayerState } from "@/hooks/use-music-player-state";
@@ -39,7 +39,8 @@ export default function MusicPlayer() {
   const [artistId, setArtistId] = useState<string | null>(null);
 
   return (
-    <MusicPlayerProvider
+    <LazyMotion features={domMax}>
+      <MusicPlayerProvider
       value={{
         musicManager: musicManager ?? null,
         songs,
@@ -60,7 +61,7 @@ export default function MusicPlayer() {
       }}
     >
       <FileDropzone />
-      <motion.main
+      <m.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ ease: "easeInOut", duration: 0.5 }}
@@ -80,12 +81,13 @@ export default function MusicPlayer() {
         </div>
 
         <DynamicBackground gradientColors={gradientColors} />
-      </motion.main>
+      </m.main>
 
       <ArtistOverlay
         artistId={artistId}
         onClose={() => setArtistId(null)}
       />
-    </MusicPlayerProvider>
+      </MusicPlayerProvider>
+    </LazyMotion>
   );
 }

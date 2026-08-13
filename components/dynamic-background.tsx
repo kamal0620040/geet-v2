@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Gradient from "@/components/gradient";
 
 interface DynamicBackgroundProps {
@@ -9,13 +9,13 @@ interface DynamicBackgroundProps {
 
 export function DynamicBackground({ gradientColors }: DynamicBackgroundProps) {
   return (
-    <motion.div
+    <m.div
       className="absolute inset-0 z-[-1] pointer-events-none"
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
       transition={{ ease: "easeInOut", duration: 1 }}
     >
       <Gradient colors={gradientColors} />
-    </motion.div>
+    </m.div>
   );
 }

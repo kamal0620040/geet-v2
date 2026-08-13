@@ -135,6 +135,7 @@ export function PlaylistSearch() {
       <form onSubmit={onSearch} className="flex flex-row gap-2">
         <input
           type="search"
+          aria-label="Search playlists"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search playlists..."

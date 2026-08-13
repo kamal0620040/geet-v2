@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useState } from "react";
 import { useMusicPlayer } from "@/lib/player-context";
 import { SongDisplay, SongDisplaySkeleton } from "@/components/song-display";
@@ -65,11 +65,11 @@ export function SongInfoPanel({
 
       <AnimatePresence mode="wait">
         {showLyrics && currentSong && (
-          <motion.div
+          <m.div
             key={currentSong.id}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
             transition={{
               duration: 0.2,
               ease: "easeOut",
@@ -78,7 +78,7 @@ export function SongInfoPanel({
             className="overflow-hidden"
           >
             <LyricsPanel song={currentSong} />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

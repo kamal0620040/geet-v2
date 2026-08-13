@@ -1,7 +1,7 @@
 "use client";
 
 import { ShaderGradient, ShaderGradientCanvas } from "@shadergradient/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 export interface GradientProps {
   colors?: [string, string, string];
@@ -15,7 +15,7 @@ const defaultColors: [string, string, string] = [
 
 export default function Gradient({ colors = defaultColors }: GradientProps) {
   return (
-    <motion.div
+    <m.div
       className="absolute inset-0 z-[-1] pointer-events-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -61,6 +61,6 @@ export default function Gradient({ colors = defaultColors }: GradientProps) {
           zoomOut={false}
         />
       </ShaderGradientCanvas>
-    </motion.div>
+    </m.div>
   );
 }

@@ -37,6 +37,7 @@ export function SongSearch() {
       <form onSubmit={onSearch} className="flex flex-row gap-2">
         <input
           type="search"
+          aria-label="Search songs"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search songs..."

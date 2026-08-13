@@ -3,6 +3,12 @@
 import { useMusicPlayer } from "@/lib/player-context";
 import { VisualizerMode } from "@/components/music-visualizer";
 
+const modes: { id: VisualizerMode; label: string }[] = [
+  { id: "spectrum", label: "Spectrum" },
+  { id: "waveform", label: "Waveform" },
+  { id: "radial", label: "Radial" },
+];
+
 export function Equalizer() {
   const { eq, setEq, visualizerMode, setVisualizerMode } = useMusicPlayer();
 
@@ -17,12 +23,6 @@ export function Equalizer() {
   const handleTrebleChange = (val: number) => {
     setEq({ ...eq, treble: val });
   };
-
-  const modes: { id: VisualizerMode; label: string }[] = [
-    { id: "spectrum", label: "Spectrum" },
-    { id: "waveform", label: "Waveform" },
-    { id: "radial", label: "Radial" },
-  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,6 +62,7 @@ export function Equalizer() {
             </div>
             <input
               type="range"
+              aria-label="Bass"
               min={-12}
               max={12}
               step={1}
@@ -79,6 +80,7 @@ export function Equalizer() {
             </div>
             <input
               type="range"
+              aria-label="Mid"
               min={-12}
               max={12}
               step={1}
@@ -96,6 +98,7 @@ export function Equalizer() {
             </div>
             <input
               type="range"
+              aria-label="Treble"
               min={-12}
               max={12}
               step={1}
