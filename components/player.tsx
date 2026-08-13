@@ -9,6 +9,7 @@ import { SongInfoPanel } from "@/components/song-info-panel";
 import { PlayerVisualizer } from "@/components/player-visualizer";
 import { DynamicBackground } from "@/components/dynamic-background";
 import { FileDropzone } from "@/components/control/file-dropzone";
+import { PageTitle } from "@/components/page-title";
 import { Menu } from "@/components/menu";
 import { ArtistOverlay } from "@/components/artist-overlay";
 
@@ -61,6 +62,7 @@ export default function MusicPlayer() {
       }}
     >
       <FileDropzone />
+      <PageTitle />
       <m.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
